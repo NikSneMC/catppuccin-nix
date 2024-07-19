@@ -37,34 +37,16 @@
         stable = nixpkgs-stable.legacyPackages.${system};
       });
 
-      forAllSystems = fn: nixpkgs.lib.genAttrs systems (system: fn nixpkgsFor.${system}.unstable);
+      forAllSystems = nixpkgs.lib.genAttrs systems;
     in
     {
       apps = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgsFor.${system}.unstable;
+          inherit (pkgs) lib;
+        in
         {
-          lib,
-          pkgs,
-          system,
-          ...
-        }:
-        {
-          add-source = {
-            type = "app";
-            program = lib.getExe (
-              pkgs.runCommand "add-source"
-                {
-                  nativeBuildInputs = [ pkgs.makeWrapper ];
-                  meta.mainProgram = "add-source";
-                }
-                ''
-                  mkdir -p $out/bin
-                  install -Dm755 ${./add_source.sh} $out/bin/add-source
-                  wrapProgram $out/bin/add-source \
-                    --prefix PATH : ${lib.makeBinPath [ pkgs.npins ]}
-                ''
-            );
-          };
-
           serve = {
             type = "app";
             program = lib.getExe self.packages.${system}.site.serve;
@@ -73,30 +55,23 @@
       );
 
       checks = forAllSystems (
-        {
-          lib,
-          pkgs,
-          system,
-          ...
-        }:
-        lib.optionalAttrs pkgs.stdenv.isLinux {
-          module-test-unstable = pkgs.callPackage ../test.nix { inherit home-manager; };
-          module-test-stable = nixpkgsFor.${system}.stable.callPackage ../test.nix {
-            home-manager = home-manager-stable;
-          };
+        system:
+        import ../tests rec {
+          inherit home-manager home-manager-stable;
+          inherit (nixpkgs) lib;
+          nixpkgs = nixpkgsFor.${system}.unstable;
+          nixpkgs-stable = nixpkgsFor.${system}.stable;
         }
       );
 
-      formatter = forAllSystems (pkgs: pkgs.nixfmt-rfc-style);
+      formatter = forAllSystems (system: nixpkgsFor.${system}.unstable.nixfmt-rfc-style);
 
       packages = forAllSystems (
-        {
-          lib,
-          pkgs,
-          system,
-          ...
-        }:
+        system:
         let
+          pkgs = nixpkgsFor.${system}.unstable;
+          inherit (pkgs) lib;
+
           version = self.shortRev or self.dirtyShortRev or "unknown";
           mkOptionDoc = pkgs.callPackage ../docs/options-doc.nix { };
           mkSite = pkgs.callPackage ../docs/mk-site.nix { };
@@ -113,22 +88,41 @@
             moduleRoot = ../modules/home-manager;
           };
 
-          site = mkSite {
+          site = mkSite rec {
             pname = "catppuccin-nix-website";
             inherit version;
 
             src = lib.fileset.toSource {
-              root = ../docs;
+              root = ../.;
               fileset = lib.fileset.unions [
+                ../CHANGELOG.md
                 ../docs/src
                 ../docs/book.toml
                 ../docs/theme
               ];
             };
+            sourceRoot = "${src.name}/docs";
 
             nixosDoc = packages'.nixos-doc;
             homeManagerDoc = packages'.home-manager-doc;
           };
+
+          add-source =
+            pkgs.runCommand "add-source"
+              {
+                nativeBuildInputs = [ pkgs.patsh ];
+                buildInputs = [ pkgs.npins ];
+                meta.mainProgram = "add-source";
+              }
+              ''
+                mkdir -p $out/bin
+
+                patsh \
+                  --store-dir ${builtins.storeDir} \
+                  ${./add-source.sh} $out/bin/add-source
+
+                chmod 755 $out/bin/add-source
+              '';
 
           default = packages'.site;
         }
