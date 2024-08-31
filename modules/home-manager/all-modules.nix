@@ -29,6 +29,7 @@
   ./micro.nix
   ./mpv.nix
   ./neovim.nix
+  ./obs-studio.nix
   ./polybar.nix
   ./rio.nix
   ./rofi.nix
