@@ -10,6 +10,7 @@
   ./fcitx5.nix
   ./fish.nix
   ./foot.nix
+  ./freetube.nix
   ./fuzzel.nix
   ./fzf.nix
   ./gh-dash.nix
@@ -19,6 +20,7 @@
   ./gtk.nix
   ./helix.nix
   ./hyprland.nix
+  ./hyprlock.nix
   ./imv.nix
   ./k9s.nix
   ./kitty.nix
@@ -39,6 +41,7 @@
   ./sway.nix
   ./tmux.nix
   ./tofi.nix
+  ./obs-studio.nix
   ./waybar.nix
   ./yazi.nix
   ./zathura.nix
