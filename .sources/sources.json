@@ -1,5 +1,17 @@
 {
   "pins": {
+    "aerc": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "catppuccin",
+        "repo": "aerc"
+      },
+      "branch": "main",
+      "revision": "ca404a9f2d125ef12db40db663d43c9d94116a05",
+      "url": "https://github.com/catppuccin/aerc/archive/ca404a9f2d125ef12db40db663d43c9d94116a05.tar.gz",
+      "hash": "0q9a818rwsqx5kvln5zzfan54xaw9yqbbm5hjbrwzdl5q8g28qir"
+    },
     "alacritty": {
       "type": "Git",
       "repository": {
@@ -464,9 +476,9 @@
         "repo": "yazi"
       },
       "branch": "main",
-      "revision": "37dec9bf1f7e52e0d593c225827b9dbc71ce504c",
-      "url": "https://github.com/catppuccin/yazi/archive/37dec9bf1f7e52e0d593c225827b9dbc71ce504c.tar.gz",
-      "hash": "1dfakxd5fd1z17bf2l4a48wmal9pk9ybc0zxwnmvjaqj2gd3k6m0"
+      "revision": "54d868433a0c2f3e1651114136ea088eef72a4a7",
+      "url": "https://github.com/catppuccin/yazi/archive/54d868433a0c2f3e1651114136ea088eef72a4a7.tar.gz",
+      "hash": "08rml9np5qqvnqyrhhfj515mddfzqbxrxalscm5kswnj5mfx5ibl"
     },
     "zathura": {
       "type": "Git",
