@@ -1,16 +1,33 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
   inherit (config.catppuccin) sources;
-  inherit (lib) ctp mkIf;
-  cfg = config.programs.mpv.catppuccin;
-  enable = cfg.enable && config.programs.mpv.enable;
+
+  cfg = config.catppuccin.mpv;
 in
+
 {
-  options.programs.mpv.catppuccin = ctp.mkCatppuccinOpt { name = "mpv"; } // {
-    accent = ctp.mkAccentOpt "mpv";
+  options.catppuccin.mpv = catppuccinLib.mkCatppuccinOption {
+    name = "mpv";
+    accentSupport = true;
   };
 
-  config.programs.mpv = mkIf enable {
-    config.include = sources.mpv + "/themes/${cfg.flavor}/${cfg.accent}.conf";
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "mpv"
+      "catppuccin"
+    ];
+    to = "mpv";
+    accentSupport = true;
+  };
+
+  config = lib.mkIf cfg.enable {
+    programs.mpv = {
+      config = {
+        include = sources.mpv + "/themes/${cfg.flavor}/${cfg.accent}.conf";
+      };
+    };
   };
 }

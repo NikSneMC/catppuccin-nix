@@ -1,32 +1,35 @@
+{ catppuccinLib }:
 {
   config,
   pkgs,
   lib,
   ...
 }:
+
 let
   inherit (lib)
     concatStringsSep
-    ctp
-    mkIf
     mkEnableOption
+    mkIf
     mkMerge
     mkOption
     mkRenamedOptionModule
     types
     ;
-  cfg = config.gtk.catppuccin;
+
+  cfg = config.catppuccin.gtk;
   enable = cfg.enable && config.gtk.enable;
 in
+
 {
-  options.gtk.catppuccin =
-    ctp.mkCatppuccinOpt {
+  options.catppuccin.gtk =
+    catppuccinLib.mkCatppuccinOption {
       name = "gtk";
-      enableDefault = false;
+      useGlobalEnable = false;
+
+      accentSupport = true;
     }
     // {
-      accent = ctp.mkAccentOpt "gtk";
-
       size = mkOption {
         type = types.enum [
           "standard"
@@ -51,61 +54,87 @@ in
 
       gnomeShellTheme = mkEnableOption "Catppuccin gtk theme for GNOME Shell";
 
-      icon =
-        ctp.mkCatppuccinOpt {
-          name = "GTK modified Papirus icon theme";
-          # NOTE: we exclude this from the global `catppuccin.enable` as there is no
-          # `enable` option in the upstream module to guard it
-          enableDefault = false;
-        }
-        // {
-          accent = ctp.mkAccentOpt "GTK modified Papirus icon theme";
-        };
+      icon = catppuccinLib.mkCatppuccinOption {
+        name = "GTK modified Papirus icon theme";
+        # NOTE: we exclude this from the global `catppuccin.enable` as there is no
+        # `enable` option in the upstream module to guard it
+        default = false;
+
+        accentSupport = true;
+      };
     };
 
-  imports = [
-    (mkRenamedOptionModule
-      [
+  imports =
+    (catppuccinLib.mkRenamedCatppuccinOptions {
+      from = [
+        "gtk"
+        "catppuccin"
+      ];
+      to = "gtk";
+      accentSupport = true;
+    })
+    ++ (catppuccinLib.mkRenamedCatppuccinOptions {
+      from = [
         "gtk"
         "catppuccin"
         "cursor"
-        "enable"
-      ]
-      [
-        "catppuccin"
-        "pointerCursor"
-        "enable"
-      ]
-    )
+      ];
+      to = "cursors";
+      accentSupport = true;
+    })
+    ++ [
+      (mkRenamedOptionModule
+        [
+          "gtk"
+          "catppuccin"
+          "size"
+        ]
+        [
+          "catppuccin"
+          "gtk"
+          "size"
+        ]
+      )
 
-    (mkRenamedOptionModule
-      [
-        "gtk"
-        "catppuccin"
-        "cursor"
-        "flavor"
-      ]
-      [
-        "catppuccin"
-        "pointerCursor"
-        "flavor"
-      ]
-    )
+      (mkRenamedOptionModule
+        [
+          "gtk"
+          "catppuccin"
+          "tweaks"
+        ]
+        [
+          "catppuccin"
+          "gtk"
+          "tweaks"
+        ]
+      )
 
-    (mkRenamedOptionModule
-      [
-        "gtk"
-        "catppuccin"
-        "cursor"
-        "accent"
-      ]
-      [
-        "catppuccin"
-        "pointerCursor"
-        "accent"
-      ]
-    )
-  ];
+      (mkRenamedOptionModule
+        [
+          "gtk"
+          "catppuccin"
+          "gnomeShellTheme"
+        ]
+        [
+          "catppuccin"
+          "gtk"
+          "gnomeShellTheme"
+        ]
+      )
+
+      (mkRenamedOptionModule
+        [
+          "gtk"
+          "catppuccin"
+          "icon"
+        ]
+        [
+          "catppuccin"
+          "gtk"
+          "icon"
+        ]
+      )
+    ];
 
   config = mkMerge [
     (mkIf enable {

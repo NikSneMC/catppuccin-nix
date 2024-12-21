@@ -1,15 +1,33 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
   inherit (config.catppuccin) sources;
-  cfg = config.programs.fuzzel.catppuccin;
+
+  cfg = config.catppuccin.fuzzel;
 in
+
 {
-  options.programs.fuzzel.catppuccin = lib.ctp.mkCatppuccinOpt { name = "fuzzel"; } // {
-    accent = lib.ctp.mkAccentOpt "fuzzel";
+  options.catppuccin.fuzzel = catppuccinLib.mkCatppuccinOption {
+    name = "fuzzel";
+    accentSupport = true;
+  };
+
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "fuzzel"
+      "catppuccin"
+    ];
+    to = "fuzzel";
+    accentSupport = true;
   };
 
   config = lib.mkIf cfg.enable {
-    programs.fuzzel.settings.main.include =
-      sources.fuzzel + "/themes/catppuccin-${cfg.flavor}/${cfg.accent}.ini";
+    programs.fuzzel = {
+      settings = {
+        main.include = sources.fuzzel + "/themes/catppuccin-${cfg.flavor}/${cfg.accent}.ini";
+      };
+    };
   };
 }

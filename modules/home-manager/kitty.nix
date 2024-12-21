@@ -1,15 +1,23 @@
+{ catppuccinLib }:
 { config, lib, ... }:
 let
-  inherit (lib) ctp;
-  cfg = config.programs.kitty.catppuccin;
-  enable = cfg.enable && config.programs.kitty.enable;
-
-  # TODO: Remove after 24.11 is stable
-  # https://github.com/nix-community/home-manager/pull/5750
-  attrName = if (lib.versionAtLeast ctp.getModuleRelease "24.11") then "themeFile" else "theme";
+  cfg = config.catppuccin.kitty;
 in
 {
-  options.programs.kitty.catppuccin = ctp.mkCatppuccinOpt { name = "kitty"; };
+  options.catppuccin.kitty = catppuccinLib.mkCatppuccinOption { name = "kitty"; };
 
-  config = lib.mkIf enable { programs.kitty.${attrName} = "Catppuccin-${ctp.mkUpper cfg.flavor}"; };
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "kitty"
+      "catppuccin"
+    ];
+    to = "kitty";
+  };
+
+  config = lib.mkIf cfg.enable {
+    programs.kitty = {
+      themeFile = "Catppuccin-${catppuccinLib.mkUpper cfg.flavor}";
+    };
+  };
 }

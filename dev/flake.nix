@@ -3,7 +3,33 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
+
+    # NOTE: This is only to deduplicate inputs
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+    };
+
+    nuscht-search = {
+      url = "github:NuschtOS/search";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+
+    catppuccin-rolling = {
+      url = "github:catppuccin/nix";
+    };
+
+    catppuccin-v1_1 = {
+      url = "https://flakehub.com/f/catppuccin/nix/1.1.*.tar.gz";
+    };
+
+    catppuccin-v1_2 = {
+      url = "https://flakehub.com/f/catppuccin/nix/1.2.*.tar.gz";
+    };
+
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -11,7 +37,7 @@
     };
 
     home-manager-stable = {
-      url = "github:nix-community/home-manager/release-24.05";
+      url = "github:nix-community/home-manager/release-24.11";
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
   };
@@ -19,12 +45,16 @@
   outputs =
     {
       self,
+      nuscht-search,
       nixpkgs,
       nixpkgs-stable,
       home-manager,
       home-manager-stable,
-    }:
+      ...
+    }@inputs:
+
     let
+      inherit (nixpkgs) lib;
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -38,29 +68,61 @@
       });
 
       forAllSystems = nixpkgs.lib.genAttrs systems;
-    in
-    {
-      apps = forAllSystems (
-        system:
+
+      # Versions of the modules we want to index in our search
+      searchVersions =
+        map
+          (versionName: {
+            inherit versionName;
+            catppuccin = inputs."catppuccin-${lib.replaceStrings [ "." ] [ "_" ] versionName}";
+          })
+          [
+            "v1.1"
+            "v1.2"
+            "rolling"
+          ];
+
+      # And the latest stable from that
+      latestStableVersion =
         let
-          pkgs = nixpkgsFor.${system}.unstable;
-          inherit (pkgs) lib;
+          latest = lib.foldl' (
+            latest:
+            { versionName, ... }:
+            if (versionName != "rolling" && lib.versionOlder latest (lib.removePrefix "v" versionName)) then
+              versionName
+            else
+              latest
+          ) "0" searchVersions;
         in
-        {
-          serve = {
-            type = "app";
-            program = lib.getExe self.packages.${system}.site.serve;
-          };
-        }
-      );
+        assert lib.assertMsg (latest != "0") "Unable to determine latest stable version!";
+        latest;
+    in
+
+    {
+      apps = forAllSystems (system: {
+        serve = {
+          type = "app";
+          program = lib.getExe self.packages.${system}.site.serve;
+        };
+      });
 
       checks = forAllSystems (
         system:
-        import ../tests rec {
-          inherit home-manager home-manager-stable;
-          inherit (nixpkgs) lib;
-          nixpkgs = nixpkgsFor.${system}.unstable;
-          nixpkgs-stable = nixpkgsFor.${system}.stable;
+
+        let
+          pkgs = nixpkgsFor.${system};
+
+          callUnstable = lib.flip pkgs.unstable.callPackage { inherit home-manager; };
+          callStable = lib.flip pkgs.stable.callPackage { home-manager = home-manager-stable; };
+        in
+
+        lib.optionalAttrs pkgs.unstable.stdenv.hostPlatform.isDarwin {
+          darwin-test-unstable = callUnstable ../tests/darwin.nix;
+          darwin-test-stable = callStable ../tests/darwin.nix;
+        }
+        // lib.optionalAttrs pkgs.unstable.stdenv.hostPlatform.isLinux {
+          nixos-test-unstable = callUnstable ../tests/nixos.nix;
+          nixos-test-stable = callStable ../tests/nixos.nix;
         }
       );
 
@@ -68,43 +130,65 @@
 
       packages = forAllSystems (
         system:
+
         let
           pkgs = nixpkgsFor.${system}.unstable;
-          inherit (pkgs) lib;
 
-          version = self.shortRev or self.dirtyShortRev or "unknown";
-          mkOptionDoc = pkgs.callPackage ../docs/options-doc.nix { };
           mkSite = pkgs.callPackage ../docs/mk-site.nix { };
-          packages' = self.packages.${system};
+          mkSearchInstance = pkgs.callPackage ../docs/mk-search.nix {
+            inherit (nuscht-search.packages.${system}) mkMultiSearch;
+          };
+
+          search-instances = lib.listToAttrs (
+            map (
+              { catppuccin, versionName }:
+              {
+                name = versionName;
+                value = mkSearchInstance { inherit catppuccin versionName; };
+              }
+            ) searchVersions
+          );
+
+          redirectTo =
+            endpoint:
+            pkgs.writeText "index.html" ''
+              <meta http-equiv="refresh" content="0;url=${endpoint}">
+            '';
         in
-        {
-          nixos-doc = mkOptionDoc {
-            inherit version;
-            moduleRoot = ../modules/nixos;
-          };
 
-          home-manager-doc = mkOptionDoc {
-            inherit version;
-            moduleRoot = ../modules/home-manager;
-          };
+        search-instances
+        // {
+          site = mkSite {
+            pname = "catppuccin-nix-site";
+            version = self.shortRev or self.dirtyShortRev or "unknown";
 
-          site = mkSite rec {
-            pname = "catppuccin-nix-website";
-            inherit version;
+            src = ../docs;
 
-            src = lib.fileset.toSource {
-              root = ../.;
-              fileset = lib.fileset.unions [
-                ../CHANGELOG.md
-                ../docs/src
-                ../docs/book.toml
-                ../docs/theme
-              ];
-            };
-            sourceRoot = "${src.name}/docs";
+            postPatch = "ln -sf ${inputs.catppuccin-rolling + "/CHANGELOG.md"} src/NEWS.md";
 
-            nixosDoc = packages'.nixos-doc;
-            homeManagerDoc = packages'.home-manager-doc;
+            postInstall = ''
+              ln -sf ${
+                pkgs.linkFarm "search-engines" (
+                  [
+                    {
+                      name = "stable.html";
+                      path = redirectTo "/search/${latestStableVersion}/";
+                    }
+                    {
+                      name = "index.html";
+                      path = redirectTo "/search/stable.html";
+                    }
+                  ]
+                  ++ map (
+                    { versionName, ... }:
+                    {
+                      name = versionName;
+                      path = search-instances.${versionName};
+                    }
+                  ) searchVersions
+                )
+              } $out/search
+            '';
           };
 
           add-source =
@@ -124,7 +208,7 @@
                 chmod 755 $out/bin/add-source
               '';
 
-          default = packages'.site;
+          default = self.packages.${system}.site;
         }
       );
     };

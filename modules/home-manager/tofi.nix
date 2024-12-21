@@ -1,13 +1,28 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
   inherit (config.catppuccin) sources;
-  cfg = config.programs.tofi.catppuccin;
-  enable = cfg.enable && config.programs.tofi.enable;
+
+  cfg = config.catppuccin.tofi;
 in
 {
-  options.programs.tofi.catppuccin = lib.ctp.mkCatppuccinOpt { name = "tofi"; };
+  options.catppuccin.tofi = catppuccinLib.mkCatppuccinOption { name = "tofi"; };
 
-  config.programs.tofi = lib.mkIf enable {
-    settings.include = sources.tofi + "/themes/catppuccin-${cfg.flavor}";
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "tofi"
+      "catppuccin"
+    ];
+    to = "tofi";
+  };
+
+  config = lib.mkIf cfg.enable {
+    programs.tofi = {
+      settings = {
+        include = sources.tofi + "/themes/catppuccin-${cfg.flavor}";
+      };
+    };
   };
 }

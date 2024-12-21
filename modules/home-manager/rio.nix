@@ -1,15 +1,26 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
-  inherit (lib) ctp;
   inherit (config.catppuccin) sources;
 
-  cfg = config.programs.rio.catppuccin;
-  enable = cfg.enable && config.programs.rio.enable;
+  cfg = config.catppuccin.rio;
 in
 {
-  options.programs.rio.catppuccin = ctp.mkCatppuccinOpt { name = "rio"; };
+  options.catppuccin.rio = catppuccinLib.mkCatppuccinOption { name = "rio"; };
 
-  config = lib.mkIf enable {
-    programs.rio.settings = lib.importTOML "${sources.rio}/themes/catppuccin-${cfg.flavor}.toml";
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "rio"
+      "catppuccin"
+    ];
+    to = "rio";
+  };
+
+  config = lib.mkIf cfg.enable {
+    programs.rio = {
+      settings = lib.importTOML "${sources.rio}/themes/catppuccin-${cfg.flavor}.toml";
+    };
   };
 }

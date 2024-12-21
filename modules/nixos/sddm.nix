@@ -1,22 +1,22 @@
+{ catppuccinLib }:
 {
   lib,
   pkgs,
   config,
   ...
 }:
+
 let
   inherit (lib)
-    mkIf
-    ctp
-    types
     mkOption
+    types
     ;
-  cfg = config.services.displayManager.sddm.catppuccin;
+
+  cfg = config.catppuccin.sddm;
   enable = cfg.enable && config.services.displayManager.sddm.enable;
 in
-
 {
-  options.services.displayManager.sddm.catppuccin = ctp.mkCatppuccinOpt { name = "sddm"; } // {
+  options.catppuccin.sddm = catppuccinLib.mkCatppuccinOption { name = "sddm"; } // {
     font = mkOption {
       type = types.str;
       default = "Noto Sans";
@@ -52,7 +52,94 @@ in
       };
   };
 
-  config = mkIf enable {
+  imports =
+    (catppuccinLib.mkRenamedCatppuccinOptions {
+      from = [
+        "services"
+        "displayManager"
+        "sddm"
+        "catppuccin"
+      ];
+      to = "sddm";
+    })
+    ++ [
+      (lib.mkRenamedOptionModule
+        [
+          "services"
+          "displayManager"
+          "sddm"
+          "catppuccin"
+          "font"
+        ]
+        [
+          "catppuccin"
+          "sddm"
+          "font"
+        ]
+      )
+
+      (lib.mkRenamedOptionModule
+        [
+          "services"
+          "displayManager"
+          "sddm"
+          "catppuccin"
+          "fontSize"
+        ]
+        [
+          "catppuccin"
+          "sddm"
+          "fontSize"
+        ]
+      )
+
+      (lib.mkRenamedOptionModule
+        [
+          "services"
+          "displayManager"
+          "sddm"
+          "catppuccin"
+          "background"
+        ]
+        [
+          "catppuccin"
+          "sddm"
+          "background"
+        ]
+      )
+
+      (lib.mkRenamedOptionModule
+        [
+          "services"
+          "displayManager"
+          "sddm"
+          "catppuccin"
+          "loginBackground"
+        ]
+        [
+          "catppuccin"
+          "sddm"
+          "loginBackground"
+        ]
+      )
+
+      (lib.mkRenamedOptionModule
+        [
+          "services"
+          "displayManager"
+          "sddm"
+          "catppuccin"
+          "assertQt6Sddm"
+        ]
+        [
+          "catppuccin"
+          "sddm"
+          "assertQt6Sddm"
+        ]
+      )
+    ];
+
+  config = lib.mkIf enable {
     assertions = lib.optional cfg.assertQt6Sddm {
       assertion = config.services.displayManager.sddm.package == pkgs.kdePackages.sddm;
       message = ''
@@ -64,7 +151,11 @@ in
       '';
     };
 
-    services.displayManager.sddm.theme = "catppuccin-${cfg.flavor}";
+    services.displayManager = {
+      sddm = {
+        theme = "catppuccin-${cfg.flavor}";
+      };
+    };
 
     environment.systemPackages = [
       (pkgs.catppuccin-sddm.override {

@@ -5,7 +5,7 @@
   ./bottom.nix
   ./btop.nix
   ./cava.nix
-  ./cursor.nix
+  ./cursors.nix
   ./delta.nix
   ./dunst.nix
   ./fcitx5.nix
@@ -17,7 +17,6 @@
   ./gh-dash.nix
   ./gitui.nix
   ./glamour.nix
-  ./globals.nix
   ./gtk.nix
   ./helix.nix
   ./hyprland.nix
@@ -42,10 +41,11 @@
   ./sway.nix
   ./tmux.nix
   ./tofi.nix
-  ./obs-studio.nix
+  ./obs.nix
   ./waybar.nix
   ./yazi.nix
   ./zathura.nix
+  ./zed-editor.nix
   ./zellij.nix
   ./zsh-syntax-highlighting.nix
 ]

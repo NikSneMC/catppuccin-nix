@@ -1,13 +1,15 @@
+{ catppuccinLib }:
 {
   config,
   lib,
   pkgs,
   ...
 }:
+
 let
   inherit (config.catppuccin) sources;
-  cfg = config.boot.loader.grub.catppuccin;
-  enable = cfg.enable && config.boot.loader.grub.enable;
+
+  cfg = config.catppuccin.grub;
 
   # TODO @getchoo: upstream this in nixpkgs maybe? idk if they have grub themes
   theme = pkgs.runCommand "catppuccin-grub-theme" { } ''
@@ -16,11 +18,23 @@ let
   '';
 in
 {
-  options.boot.loader.grub.catppuccin = lib.ctp.mkCatppuccinOpt { name = "grub"; };
+  options.catppuccin.grub = catppuccinLib.mkCatppuccinOption { name = "grub"; };
 
-  config.boot.loader.grub = lib.mkIf enable {
-    font = "${theme}/font.pf2";
-    splashImage = "${theme}/background.png";
-    inherit theme;
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "boot"
+      "loader"
+      "grub"
+      "catppuccin"
+    ];
+    to = "grub";
+  };
+
+  config = lib.mkIf cfg.enable {
+    boot.loader.grub = {
+      font = "${theme}/font.pf2";
+      splashImage = "${theme}/background.png";
+      inherit theme;
+    };
   };
 }

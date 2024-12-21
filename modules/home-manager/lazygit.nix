@@ -1,14 +1,15 @@
+{ catppuccinLib }:
 {
   config,
   lib,
   pkgs,
   ...
 }:
+
 let
-  inherit (lib) ctp;
   inherit (config.catppuccin) sources;
 
-  cfg = config.programs.lazygit.catppuccin;
+  cfg = config.catppuccin.lazygit;
   enable = cfg.enable && config.programs.lazygit.enable;
 
   # NOTE: On MacOS specifically, k9s expects its configuration to be in
@@ -22,13 +23,27 @@ let
       "${config.home.homeDirectory}/Library/Application Support";
   configFile = "${configDirectory}/lazygit/config.yml";
 in
+
 {
-  options.programs.lazygit.catppuccin = lib.ctp.mkCatppuccinOpt { name = "lazygit"; } // {
-    accent = ctp.mkAccentOpt "lazygit";
+  options.catppuccin.lazygit = catppuccinLib.mkCatppuccinOption {
+    name = "lazygit";
+    accentSupport = true;
   };
 
-  config.home.sessionVariables = lib.mkIf enable {
-    # Ensure that the default config file is still sourced
-    LG_CONFIG_FILE = "${sources.lazygit}/themes-mergable/${cfg.flavor}/${cfg.accent}.yml,${configFile}";
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "lazygit"
+      "catppuccin"
+    ];
+    to = "lazygit";
+    accentSupport = true;
+  };
+
+  config = lib.mkIf enable {
+    home.sessionVariables = {
+      # Ensure that the default config file is still sourced
+      LG_CONFIG_FILE = "${sources.lazygit}/themes-mergable/${cfg.flavor}/${cfg.accent}.yml,${configFile}";
+    };
   };
 }

@@ -1,13 +1,15 @@
+{ catppuccinLib }:
 {
   config,
   lib,
   pkgs,
   ...
 }:
+
 let
   inherit (config.catppuccin) sources;
 
-  cfg = config.programs.k9s.catppuccin;
+  cfg = config.catppuccin.k9s;
   enable = cfg.enable && config.programs.k9s.enable;
 
   # NOTE: On MacOS specifically, k9s expects its configuration to be in
@@ -19,18 +21,54 @@ let
   themePath = "k9s/skins/${themeFile}";
   theme = sources.k9s + "/dist/${themeFile}";
 in
+
 {
-  options.programs.k9s.catppuccin = lib.ctp.mkCatppuccinOpt { name = "k9s"; } // {
+  options.catppuccin.k9s = catppuccinLib.mkCatppuccinOption { name = "k9s"; } // {
     transparent = lib.mkEnableOption "transparent version of flavor";
   };
+
+  imports =
+    (catppuccinLib.mkRenamedCatppuccinOptions {
+      from = [
+        "programs"
+        "k9s"
+        "catppuccin"
+      ];
+      to = "k9s";
+    })
+    ++ [
+      (lib.mkRenamedOptionModule
+        [
+          "programs"
+          "k9s"
+          "catppuccin"
+          "transparent"
+        ]
+        [
+          "catppuccin"
+          "k9s"
+          "transparent"
+        ]
+      )
+    ];
 
   config = lib.mkIf enable (
     lib.mkMerge [
       (lib.mkIf (!enableXdgConfig) {
-        home.file."Library/Application Support/${themePath}".source = theme;
+        home.file = {
+          "Library/Application Support/${themePath}".source = theme;
+        };
       })
+
       (lib.mkIf enableXdgConfig { xdg.configFile.${themePath}.source = theme; })
-      { programs.k9s.settings.k9s.ui.skin = themeName; }
+
+      {
+        programs.k9s = {
+          settings = {
+            k9s.ui.skin = themeName;
+          };
+        };
+      }
     ]
   );
 }

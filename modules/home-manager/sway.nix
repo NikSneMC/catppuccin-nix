@@ -1,16 +1,30 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
   inherit (config.catppuccin) sources;
-  cfg = config.wayland.windowManager.sway.catppuccin;
-  enable = cfg.enable && config.wayland.windowManager.sway.enable;
+
+  cfg = config.catppuccin.sway;
   theme = "${sources.sway}/themes/catppuccin-${cfg.flavor}";
 in
 {
-  options.wayland.windowManager.sway.catppuccin = lib.ctp.mkCatppuccinOpt { name = "sway"; };
+  options.catppuccin.sway = catppuccinLib.mkCatppuccinOption { name = "sway"; };
 
-  config = lib.mkIf enable {
-    wayland.windowManager.sway.extraConfigEarly = ''
-      include ${theme}
-    '';
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "wayland"
+      "windowManager"
+      "sway"
+      "catppuccin"
+    ];
+    to = "sway";
+  };
+
+  config = lib.mkIf cfg.enable {
+    wayland.windowManager.sway = {
+      extraConfigEarly = ''
+        include ${theme}
+      '';
+    };
   };
 }

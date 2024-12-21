@@ -1,15 +1,27 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
   inherit (config.catppuccin) sources;
 
-  cfg = config.programs.newsboat.catppuccin;
-  enable = cfg.enable && config.programs.newsboat.enable;
+  cfg = config.catppuccin.newsboat;
   theme = if cfg.flavor == "latte" then "latte" else "dark";
 in
 {
-  options.programs.newsboat.catppuccin = lib.ctp.mkCatppuccinOpt { name = "newsboat"; };
+  options.catppuccin.newsboat = catppuccinLib.mkCatppuccinOption { name = "newsboat"; };
 
-  config = lib.mkIf enable {
-    programs.newsboat.extraConfig = builtins.readFile "${sources.newsboat}/themes/${theme}";
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "newsboat"
+      "catppuccin"
+    ];
+    to = "newsboat";
+  };
+
+  config = lib.mkIf cfg.enable {
+    programs.newsboat = {
+      extraConfig = lib.fileContents "${sources.newsboat}/themes/${theme}";
+    };
   };
 }

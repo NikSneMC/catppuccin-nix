@@ -1,15 +1,27 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
-  cfg = config.programs.zellij.catppuccin;
-  enable = cfg.enable && config.programs.zellij.enable;
+  cfg = config.catppuccin.zellij;
   themeName = "catppuccin-${cfg.flavor}";
 in
 {
-  options.programs.zellij.catppuccin = lib.ctp.mkCatppuccinOpt { name = "zellij"; };
+  options.catppuccin.zellij = catppuccinLib.mkCatppuccinOption { name = "zellij"; };
 
-  config = lib.mkIf enable {
-    programs.zellij.settings = {
-      theme = themeName;
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "zellij"
+      "catppuccin"
+    ];
+    to = "zellij";
+  };
+
+  config = lib.mkIf cfg.enable {
+    programs.zellij = {
+      settings = {
+        theme = themeName;
+      };
     };
   };
 }

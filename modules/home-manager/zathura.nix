@@ -1,13 +1,28 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
   inherit (config.catppuccin) sources;
-  cfg = config.programs.zathura.catppuccin;
-  enable = cfg.enable && config.programs.zathura.enable;
+
+  cfg = config.catppuccin.zathura;
 in
 {
-  options.programs.zathura.catppuccin = lib.ctp.mkCatppuccinOpt { name = "zathura"; };
+  options.catppuccin.zathura = catppuccinLib.mkCatppuccinOption { name = "zathura"; };
 
-  config.programs.zathura.extraConfig = lib.mkIf enable ''
-    include ${sources.zathura + "/src/catppuccin-${cfg.flavor}"}
-  '';
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "programs"
+      "zathura"
+      "catppuccin"
+    ];
+    to = "zathura";
+  };
+
+  config = lib.mkIf cfg.enable {
+    programs.zathura = {
+      extraConfig = ''
+        include ${sources.zathura + "/src/catppuccin-${cfg.flavor}"}
+      '';
+    };
+  };
 }

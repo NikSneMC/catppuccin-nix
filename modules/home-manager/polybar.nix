@@ -1,13 +1,26 @@
+{ catppuccinLib }:
 { config, lib, ... }:
+
 let
   inherit (config.catppuccin) sources;
-  cfg = config.services.polybar.catppuccin;
-  enable = cfg.enable && config.services.polybar.enable;
+
+  cfg = config.catppuccin.polybar;
 in
 {
-  options.services.polybar.catppuccin = lib.ctp.mkCatppuccinOpt { name = "polybar"; };
+  options.catppuccin.polybar = catppuccinLib.mkCatppuccinOption { name = "polybar"; };
 
-  config.services.polybar.extraConfig = lib.mkIf enable (
-    builtins.readFile "${sources.polybar}/themes/${cfg.flavor}.ini"
-  );
+  imports = catppuccinLib.mkRenamedCatppuccinOptions {
+    from = [
+      "services"
+      "polybar"
+      "catppuccin"
+    ];
+    to = "polybar";
+  };
+
+  config = lib.mkIf cfg.enable {
+    services.polybar = {
+      extraConfig = lib.fileContents "${sources.polybar}/themes/${cfg.flavor}.ini";
+    };
+  };
 }

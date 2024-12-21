@@ -1,4 +1,5 @@
 { lib, ... }:
+
 {
   imports = [
     ../modules/home-manager
@@ -8,7 +9,7 @@
   xdg.enable = true;
 
   home = {
-    username = "test";
+    username = lib.fileContents ./username.txt;
     stateVersion = lib.mkDefault "23.11";
   };
 
@@ -59,6 +60,7 @@
     waybar.enable = true;
     yazi.enable = true;
     zathura.enable = true;
+    zed-editor.enable = true;
     zellij.enable = true;
     zsh = {
       enable = true;
