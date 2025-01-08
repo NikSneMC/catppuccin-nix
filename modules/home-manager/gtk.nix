@@ -1,8 +1,8 @@
 { catppuccinLib }:
 {
   config,
-  pkgs,
   lib,
+  pkgs,
   ...
 }:
 
@@ -140,16 +140,15 @@ in
     (mkIf enable {
       gtk.theme =
         let
-          gtkTweaks = "+" + concatStringsSep "," cfg.tweaks;
+          gtkTweaks = concatStringsSep "," cfg.tweaks;
         in
         {
           name =
-            "catppuccin-${cfg.flavor}-${cfg.accent}-${cfg.size}"
-            + lib.optionalString (cfg.tweaks != [ ]) gtkTweaks;
-          package = pkgs.catppuccin-gtk.override {
-            inherit (cfg) size tweaks;
+            "catppuccin-${cfg.flavor}-${cfg.accent}-${cfg.size}+"
+            + (if (cfg.tweaks == [ ]) then "default" else gtkTweaks);
+          package = config.catppuccin.sources.gtk.override {
+            inherit (cfg) flavor size tweaks;
             accents = [ cfg.accent ];
-            variant = cfg.flavor;
           };
         };
 

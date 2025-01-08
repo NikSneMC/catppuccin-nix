@@ -22,6 +22,7 @@
 
         programs = {
           cava.enable = lib.mkVMOverride false; # NOTE: this may actually work on darwin, but the package is currently not supported
+          chromium.enable = lib.mkVMOverride false;
           foot.enable = lib.mkVMOverride false;
           fuzzel.enable = lib.mkVMOverride false;
           hyprlock.enable = lib.mkVMOverride false;
@@ -34,6 +35,7 @@
           swaylock.enable = lib.mkVMOverride false;
           tofi.enable = lib.mkVMOverride false;
           waybar.enable = lib.mkVMOverride false;
+          wlogout.enable = lib.mkVMOverride false;
         };
 
         qt.enable = lib.mkVMOverride false; # NOTE: same as cava

@@ -5,6 +5,7 @@
   ./bottom.nix
   ./btop.nix
   ./cava.nix
+  ./chrome.nix
   ./cursors.nix
   ./delta.nix
   ./dunst.nix
@@ -31,6 +32,7 @@
   ./micro.nix
   ./mpv.nix
   ./neovim.nix
+  ./obs.nix
   ./polybar.nix
   ./rio.nix
   ./rofi.nix
@@ -41,8 +43,8 @@
   ./sway.nix
   ./tmux.nix
   ./tofi.nix
-  ./obs.nix
   ./waybar.nix
+  ./wlogout.nix
   ./yazi.nix
   ./zathura.nix
   ./zed-editor.nix

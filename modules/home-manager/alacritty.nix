@@ -5,6 +5,7 @@ let
   inherit (config.catppuccin) sources;
   cfg = config.catppuccin.alacritty;
 in
+
 {
   options.catppuccin.alacritty = catppuccinLib.mkCatppuccinOption { name = "alacritty"; };
 
@@ -19,7 +20,7 @@ in
 
   config = lib.mkIf cfg.enable {
     programs.alacritty = {
-      settings = lib.importTOML "${sources.alacritty}/catppuccin-${cfg.flavor}.toml";
+      settings.general.import = lib.mkBefore [ "${sources.alacritty}/catppuccin-${cfg.flavor}.toml" ];
     };
   };
 }

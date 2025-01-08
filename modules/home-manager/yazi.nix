@@ -25,13 +25,12 @@ in
   };
 
   config = lib.mkIf enable {
-    programs.yazi = {
-      theme = lib.importTOML "${sources.yazi}/themes/${cfg.flavor}/catppuccin-${cfg.flavor}-${cfg.accent}.toml";
-    };
-
     xdg.configFile = {
+      "yazi/theme.toml".source =
+        "${sources.yazi}/${cfg.flavor}/catppuccin-${cfg.flavor}-${cfg.accent}.toml";
+
       "yazi/Catppuccin-${cfg.flavor}.tmTheme".source =
-        "${sources.bat}/themes/Catppuccin ${catppuccinLib.mkUpper cfg.flavor}.tmTheme";
+        "${sources.bat}/Catppuccin ${catppuccinLib.mkUpper cfg.flavor}.tmTheme";
     };
   };
 }
