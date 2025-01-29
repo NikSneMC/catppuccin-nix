@@ -17,6 +17,7 @@
   ./fzf.nix
   ./gh-dash.nix
   ./gitui.nix
+  ./ghostty.nix
   ./glamour.nix
   ./gtk.nix
   ./helix.nix
@@ -27,6 +28,7 @@
   ./kitty.nix
   ./kvantum.nix
   ./lazygit.nix
+  ./lsd.nix
   ./newsboat.nix
   ./mako.nix
   ./micro.nix

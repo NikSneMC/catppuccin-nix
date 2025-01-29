@@ -32,6 +32,7 @@
     fuzzel.enable = true;
     fzf.enable = true;
     gh-dash.enable = true;
+    ghostty.enable = true;
     git = {
       enable = true;
       delta.enable = true;
@@ -46,6 +47,7 @@
     k9s.enable = true;
     kitty.enable = true;
     lazygit.enable = true;
+    lsd.enable = true;
     micro.enable = true;
     mpv.enable = true;
     neovim.enable = true;

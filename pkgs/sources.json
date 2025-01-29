@@ -55,6 +55,10 @@
     "hash": "sha256-fOCZxrEyWLi+VYnx3QYOP1R+VBhllhOlnO5/5Wg5aq4=",
     "rev": "acb1b1c22446e34781731ddbfb5e9bd699eccc74"
   },
+  "ghostty": {
+    "hash": "sha256-YHHOGeXNlVdUdUXHQW4G+6Nl8xyHo2tuJ9b+/1LfGos=",
+    "rev": "1cb0c33770a411160cbe14b48b831455a2244ee3"
+  },
   "gitui": {
     "hash": "sha256-CRxpEDShQcCEYtSXwLV5zFB8u0HVcudNcMruPyrnSEk=",
     "rev": "c7661f043cb6773a1fc96c336738c6399de3e617"
@@ -90,6 +94,10 @@
   "lazygit": {
     "hash": "sha256-b2SoIeXT1BaoxvEeQ0VaPmnBND+7qUe342kOIkyOcAc=",
     "rev": "d3c95a67ea3f778f7705d8ef814f87ac5213436d"
+  },
+  "lsd": {
+    "hash": "sha256-lf6VawCgK9VlKO+PAzPD/WqPjxoqw2j000b5ZlEXj/Y=",
+    "rev": "7085155432c7fe53a7acd7b0c004955368aa0fba"
   },
   "mako": {
     "hash": "sha256-jgiZ+CrM4DX2nZR5BjjD9/Rk5CGGUy3gq9CCvYzp5Vs=",
