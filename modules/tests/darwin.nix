@@ -36,6 +36,7 @@
           spotify-player.enable = lib.mkVMOverride false; # NOTE: same as mpv
           swaylock.enable = lib.mkVMOverride false;
           tofi.enable = lib.mkVMOverride false;
+          thunderbird.enable = lib.mkVMOverride false;
           waybar.enable = lib.mkVMOverride false;
           wlogout.enable = lib.mkVMOverride false;
         };
@@ -46,6 +47,7 @@
           dunst.enable = lib.mkVMOverride false;
           mako.enable = lib.mkVMOverride false;
           polybar.enable = lib.mkVMOverride false;
+          swaync.enable = lib.mkVMOverride false;
         };
 
         wayland.windowManager = {

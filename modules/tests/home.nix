@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 {
   imports = [
@@ -53,6 +53,7 @@
     neovim.enable = true;
     newsboat.enable = true;
     obs-studio.enable = true;
+    qutebrowser.enable = true;
     rio.enable = true;
     rofi.enable = true;
     skim.enable = true;
@@ -61,7 +62,16 @@
     swaylock.enable = true;
     tmux.enable = true;
     tofi.enable = true;
+    thunderbird = {
+      enable = true;
+      profiles.catppuccin-mocha-mauve.isDefault = true;
+    };
+    vscode = {
+      enable = true;
+      package = pkgs.vscodium;
+    };
     waybar.enable = true;
+    wezterm.enable = true;
     wlogout.enable = true;
     yazi.enable = true;
     zathura.enable = true;
@@ -88,6 +98,7 @@
         polybar top &
       '';
     };
+    swaync.enable = true;
   };
 
   wayland.windowManager.sway.enable = true;

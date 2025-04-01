@@ -30,12 +30,14 @@
   ./lazygit.nix
   ./lsd.nix
   ./newsboat.nix
+  ./nushell.nix
   ./mako.nix
   ./micro.nix
   ./mpv.nix
   ./neovim.nix
   ./obs.nix
   ./polybar.nix
+  ./qutebrowser.nix
   ./rio.nix
   ./rofi.nix
   ./skim.nix
@@ -43,9 +45,13 @@
   ./starship.nix
   ./swaylock.nix
   ./sway.nix
+  ./swaync.nix
+  ./thunderbird.nix
   ./tmux.nix
   ./tofi.nix
+  ./vscode.nix
   ./waybar.nix
+  ./wezterm.nix
   ./wlogout.nix
   ./yazi.nix
   ./zathura.nix
