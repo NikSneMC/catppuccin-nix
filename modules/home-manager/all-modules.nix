@@ -1,6 +1,7 @@
 [
   ./aerc.nix
   ./alacritty.nix
+  ./atuin.nix
   ./bat.nix
   ./bottom.nix
   ./btop.nix
@@ -58,4 +59,5 @@
   ./zed-editor.nix
   ./zellij.nix
   ./zsh-syntax-highlighting.nix
+  ./sioyek.nix
 ]
