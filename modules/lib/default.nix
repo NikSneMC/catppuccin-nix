@@ -15,11 +15,9 @@ let
     mkSinkUndeclaredOptions
     optional
     optionalAttrs
-    stringLength
-    substring
-    toUpper
     types
     versionAtLeast
+    toSentenceCase
     ;
 
   inherit (lib.modules) importApply;
@@ -57,28 +55,6 @@ lib.makeExtensible (ctp: {
   };
 
   /**
-    Capitalize the first letter in a string
-
-    # Example
-
-    ```nix
-    mkUpper "foo"
-    => "Foo"
-    ```
-
-    # Type
-
-    ```
-    mkUpper :: String -> String
-    ```
-
-    # Arguments
-
-    - [str] String to capitalize
-  */
-  mkUpper = str: (toUpper (substring 0 1 str)) + (substring 1 (stringLength str) str);
-
-  /**
     Capitalize the first letter in a string, and change the final "e" into "é" if the
     original string is "frappe"
 
@@ -99,7 +75,7 @@ lib.makeExtensible (ctp: {
 
     - [str] String to capitalize
   */
-  mkFlavorName = str: if str == "frappe" then "Frappé" else ctp.mkUpper str;
+  mkFlavorName = str: if str == "frappe" then "Frappé" else toSentenceCase str;
 
   /**
     Reads a YAML file
@@ -227,6 +203,7 @@ lib.makeExtensible (ctp: {
       flavor = mkOption {
         type = ctp.types.flavor;
         default = config.catppuccin.flavor;
+        defaultText = "catppuccin.flavor";
         description = "Catppuccin flavor for ${name}";
       };
     }
@@ -234,28 +211,10 @@ lib.makeExtensible (ctp: {
       accent = mkOption {
         type = ctp.types.accent;
         default = config.catppuccin.accent;
+        defaultText = "catppuccin.accent";
         description = "Catppuccin accent for ${name}";
       };
     };
-
-  /**
-    Merge the given enum types
-    See https://nixos.org/manual/nixos/stable/#sec-option-types-custom & https://github.com/NixOS/nixpkgs/pull/363565#issuecomment-2532950341
-
-    # Example
-
-    ```nix
-    mergeEnums (lib.types.enum [ 1 2 ]) (lib.types.enum [ 3 4 ])
-    => lib.types.enum [ 1 2 3 4 ]
-    ```
-
-    # Type
-
-    ```
-    mergeEnums :: Enum -> Enum -> Enum
-    ```
-  */
-  mergeEnums = a: b: a.typeMerge b.functor;
 
   /**
     Returns the current release version of nixos or home-manager.

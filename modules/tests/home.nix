@@ -15,9 +15,22 @@
 
   manual.manpages.enable = lib.mkDefault false;
 
-  i18n.inputMethod.enabled = "fcitx5";
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+  };
+
+  catppuccin = {
+    # keep-sorted start
+    firefox.profiles.test = { };
+    floorp.profiles.test = { };
+    librewolf.profiles.test = { };
+    xfce4-terminal.enable = true;
+    # keep-sorted end
+  };
 
   programs = {
+    # keep-sorted start block=yes sticky_comments=yes
     aerc.enable = true;
     alacritty.enable = true;
     bat.enable = true;
@@ -26,6 +39,7 @@
     btop.enable = true;
     cava.enable = true;
     chromium.enable = true;
+    element-desktop.enable = true;
     fish.enable = true;
     foot.enable = true;
     freetube.enable = true;
@@ -48,24 +62,27 @@
     kitty.enable = true;
     lazygit.enable = true;
     lsd.enable = true;
+    mangohud.enable = true;
     micro.enable = true;
     mpv.enable = true;
     neovim.enable = true;
     newsboat.enable = true;
     obs-studio.enable = true;
-    qutebrowser.enable = true;
+    qutebrowser.enable = false; # broken package due to python3.13-lxml-html-clean-0.4.2
     rio.enable = true;
     rofi.enable = true;
+    sioyek.enable = true;
     skim.enable = true;
     spotify-player.enable = true;
     starship.enable = true;
     swaylock.enable = true;
-    tmux.enable = true;
-    tofi.enable = true;
     thunderbird = {
       enable = true;
       profiles.catppuccin-mocha-mauve.isDefault = true;
     };
+    tmux.enable = true;
+    tofi.enable = true;
+    vesktop.enable = true;
     vscode = {
       enable = true;
       package = pkgs.vscodium;
@@ -81,7 +98,7 @@
       enable = true;
       syntaxHighlighting.enable = true;
     };
-    sioyek.enable = true;
+    # keep-sorted end
   };
 
   qt = {
@@ -91,6 +108,7 @@
   };
 
   services = {
+    # keep-sorted start block=yes
     dunst.enable = true;
     mako.enable = true;
     polybar = {
@@ -100,8 +118,13 @@
       '';
     };
     swaync.enable = true;
+    # keep-sorted end
   };
 
-  wayland.windowManager.sway.enable = true;
-  wayland.windowManager.hyprland.enable = true;
+  wayland.windowManager = {
+    # keep-sorted start
+    hyprland.enable = true;
+    sway.enable = true;
+    # keep-sorted end
+  };
 }

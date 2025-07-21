@@ -10,7 +10,9 @@
   ./cursors.nix
   ./delta.nix
   ./dunst.nix
+  ./element-desktop.nix
   ./fcitx5.nix
+  ./firefox.nix
   ./fish.nix
   ./foot.nix
   ./freetube.nix
@@ -33,6 +35,7 @@
   ./newsboat.nix
   ./nushell.nix
   ./mako.nix
+  ./mangohud.nix
   ./micro.nix
   ./mpv.nix
   ./neovim.nix
@@ -50,10 +53,12 @@
   ./thunderbird.nix
   ./tmux.nix
   ./tofi.nix
+  ./vesktop.nix
   ./vscode.nix
   ./waybar.nix
   ./wezterm.nix
   ./wlogout.nix
+  ./xfce4-terminal.nix
   ./yazi.nix
   ./zathura.nix
   ./zed-editor.nix
