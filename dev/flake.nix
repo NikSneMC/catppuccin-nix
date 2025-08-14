@@ -2,44 +2,16 @@
   description = "Development Flake for catppuccin/nix";
 
   inputs = {
-    # WARN: This handling of `path:` is a Nix 2.26 feature. The Flake won't work on versions prior to it
+    # WARN: This handling of `path:` is a Nix 2.26 feature. The Flake won't work correctly on versions prior to it
     # https://github.com/NixOS/nix/pull/10089
     catppuccin.url = "path:../.";
     nixpkgs.follows = "catppuccin/nixpkgs";
 
     flake-utils.url = "github:numtide/flake-utils";
 
-    # Module versions we test against (aside from NixOS unstable)
-
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
-
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    home-manager-stable = {
-      url = "github:nix-community/home-manager/release-25.05";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
-    };
-
-    # Our option search generator
-    nuscht-search = {
-      url = "github:NuschtOS/search";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
-
-    # Track some of our minor releases to index in said search
-
-    catppuccin-v1_1 = {
-      url = "https://flakehub.com/f/catppuccin/nix/1.1.*.tar.gz";
-    };
-
-    catppuccin-v1_2 = {
-      url = "https://flakehub.com/f/catppuccin/nix/1.2.*.tar.gz";
     };
   };
 
@@ -53,16 +25,56 @@
 
     let
       inherit (nixpkgs) lib;
-      inherit (inputs.flake-utils.lib) eachDefaultSystem mkApp;
+      inherit (inputs.flake-utils.lib) eachDefaultSystem;
 
-      mkApp' = drv: mkApp { inherit drv; };
+      # NOTE: Required for backwards compat with versions < 25.05
+      homeModule = (catppuccin.homeModules or catppuccin.homeManagerModules).catppuccin;
 
-      # Versions of the modules we want to index in our search
-      searchVersions = {
-        "v1.1" = inputs.catppuccin-v1_1;
-        "v1.2" = inputs.catppuccin-v1_2;
-        "rolling" = catppuccin;
-      };
+      catppuccinEnableModule =
+        { pkgs, ... }:
+
+        {
+          catppuccin = {
+            enable = true;
+            sources = {
+              # this is used to ensure that we are able to apply
+              # source overrides without breaking the other sources
+              palette = pkgs.fetchFromGitHub {
+                owner = "catppuccin";
+                repo = "palette";
+                rev = "16726028c518b0b94841de57cf51f14c095d43d8"; # refs/tags/1.1.1~1
+                hash = "sha256-qZjMlZFTzJotOYjURRQMsiOdR2XGGba8XzXwx4+v9tk=";
+              };
+            };
+          };
+        };
+
+      pepperjackHomeModule =
+        {
+          config,
+          pkgs,
+          osConfig,
+          ...
+        }:
+
+        {
+          imports = [
+            homeModule
+            catppuccinEnableModule
+            (catppuccin + "/modules/tests/home.nix")
+          ];
+
+          home = {
+            homeDirectory = lib.mkDefault (
+              if pkgs.stdenv.hostPlatform.isDarwin then
+                "/Users/${config.home.username}"
+              else
+                "/home/${config.home.username}"
+            );
+            # See comment in NixOS config below
+            inherit (osConfig.system or self.nixosConfigurations.pepperjack-pc.config.system) stateVersion;
+          };
+        };
     in
 
     eachDefaultSystem (
@@ -70,52 +82,120 @@
 
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        pkgsStable = inputs.nixpkgs-stable.legacyPackages.${system};
 
-        kernelName = pkgs.stdenv.hostPlatform.parsed.kernel.name;
+        # Evaluate each of our modules for different systems
+        nixosConfiguration = self.nixosConfigurations.pepperjack-pc.extendModules {
+          modules = [
+            (
+              { lib, ... }:
 
-        callWith = pkgs: lib.flip pkgs.callPackage;
-        callUnstable = callWith pkgs { inherit (inputs) home-manager; };
-        callStable = callWith pkgsStable { home-manager = inputs.home-manager-stable; };
+              {
+                nixpkgs.pkgs = lib.mkForce pkgs;
+              }
+            )
+          ];
+        };
+
+        homeConfiguration = self.homeConfigurations.pepperjack.extendModules {
+          modules = [
+            (
+              { lib, ... }:
+
+              {
+                _module.args.pkgs = lib.mkForce pkgs;
+              }
+            )
+          ];
+        };
+
+        fullEval =
+          # NixOS includes the home-manager configuration
+          if pkgs.stdenv.hostPlatform.isLinux then
+            self.nixosConfigurations.pepperjack-pc.config.system.build.toplevel.outPath
+          else
+            self.homeConfigurations.pepperjack.activationPackage.outPath;
+
+        mkOptionsJSONFrom =
+          eval:
+
+          let
+            # This should point to where you can view our module files
+            filesLink = "https://github.com/catppuccin/nix/blob/${
+              lib.removeSuffix "-dirty" catppuccin.rev or catppuccin.dirtyRev or "main"
+            }";
+
+            # And replace the declarations of our modules with that link
+            rootPath = lib.removeSuffix "/dev/../." inputs.catppuccin.outPath; # HACK(@getchoo): Outpaths of subflakes are relative, womp womp
+            replaceDeclaration = lib.replaceString rootPath filesLink;
+          in
+
+          (pkgs.nixosOptionsDoc {
+            options = { inherit (eval.options) catppuccin; };
+
+            transformOptions =
+              opt: lib.recursiveUpdate opt { declarations = map replaceDeclaration opt.declarations; };
+          }).optionsJSON;
       in
 
       {
-        apps = {
-          serve = mkApp' self.packages.${system}.site.serve;
+        checks = lib.filterAttrs (lib.const lib.isDerivation) catppuccin.packages.${system} or { } // {
+          module-eval = lib.deepSeq fullEval pkgs.emptyFile;
         };
 
-        checks =
-          {
-            darwin = {
-              test-unstable = callUnstable (catppuccin + "/modules/tests/darwin.nix");
-              test-stable = callStable (catppuccin + "/modules/tests/darwin.nix");
-            };
-
-            linux = {
-              test-unstable = callUnstable (catppuccin + "/modules/tests/nixos.nix");
-              test-stable = callStable (catppuccin + "/modules/tests/nixos.nix");
-            };
-          }
-          .${kernelName} or { };
-
         packages = {
-          # Used in CI
-          all-ports = pkgs.linkFarm "all-ports" (
-            lib.foldlAttrs (
-              acc: name: pkg:
-              if pkg ? "outPath" then
-                acc
-                // {
-                  ${name} = pkg.outPath;
-                }
-              else
-                acc
-            ) { } (lib.removeAttrs catppuccin.packages.${system} [ "default" ])
-          );
+          nixosOptionsJSON = mkOptionsJSONFrom nixosConfiguration;
+          homeOptionsJSON = mkOptionsJSONFrom homeConfiguration;
+        };
+      }
+    )
+    // (
+      let
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      in
 
-          site = pkgs.callPackage (catppuccin + "/docs/package.nix") {
-            inherit inputs searchVersions;
-            nuscht-search = inputs.nuscht-search.packages.${system};
+      {
+        homeConfigurations = {
+          pepperjack = inputs.home-manager.lib.homeManagerConfiguration {
+            inherit pkgs;
+            modules = [
+              pepperjackHomeModule
+              { home.username = "pepperjack"; }
+            ];
+          };
+        };
+
+        nixosConfigurations = {
+          pepperjack-pc = nixpkgs.lib.nixosSystem {
+            modules = [
+              inputs.home-manager.nixosModules.default
+              catppuccin.nixosModules.catppuccin
+              catppuccinEnableModule
+              (catppuccin + "/modules/tests/nixos.nix")
+
+              (
+                { config, ... }:
+
+                {
+                  # Silence, convenient safety assertions!!!!
+                  fileSystems."/" = {
+                    label = "root";
+                  };
+
+                  # NOTE: This isn't required for NixOS. But it is for home-manager!
+                  system.stateVersion = config.system.nixos.release;
+
+                  nixpkgs = { inherit pkgs; };
+
+                  users.users.pepperjack = {
+                    isNormalUser = true;
+                  };
+
+                  home-manager.users.pepperjack = {
+                    imports = [ pepperjackHomeModule ];
+                  };
+                }
+              )
+            ];
           };
         };
       }

@@ -2,7 +2,9 @@ name: Format
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - "main"
+      - "release-*"
   workflow_dispatch:
 
 jobs:
@@ -24,15 +26,22 @@ jobs:
 
       - name: Get short revision
         id: rev
-        run:
-          echo "rev=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+        run: echo "rev=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
 
-      - name: Format changes
+      - name: Format Nix files
         run: |
           nix fmt
+
+      - name: Install Node modules
+        run: |
+          nix develop --command pnpm install
+
+      - name: Format with Prettier
+        run: |
+          nix develop --command nrr fmt
 
       - name: Commit changes
         run: |

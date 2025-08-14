@@ -55,9 +55,21 @@
         }
       );
 
-      devShells = forAllDevSystems (system: {
-        default = import ./shell.nix { pkgs = nixpkgs.legacyPackages.${system}; };
-      });
+      devShells = forAllDevSystems (
+        system:
+
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+
+        lib.genAttrs [ "default" "ci" ] (
+          name:
+          import ./shell.nix {
+            inherit pkgs;
+            minimal = name == "ci";
+          }
+        )
+      );
 
       formatter = forAllDevSystems (
         system:

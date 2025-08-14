@@ -2,12 +2,15 @@
 { config, lib, ... }:
 let
   inherit (lib)
+    attrNames
+    foldl'
+    hasAttr
     importJSON
-    mapAttrs
-    filterAttrs
     toSentenceCase
+    mapAttrs
     mkIf
     mkOption
+    optional
     getAttrFromPath
     setAttrByPath
     types
@@ -30,58 +33,95 @@ let
         "catppuccin"
         name
       ];
+
+      getAttrStringFromPath = lib.concatStringsSep ".";
+
       cfg = getAttrFromPath modulePath config;
+      firefoxCfg = getAttrFromPath hmModulePath config;
+
+      mkProfileOptions =
+        {
+          forceDefault ? false,
+          enableDefault ? null,
+        }:
+        catppuccinLib.mkCatppuccinOption (
+          {
+            inherit name;
+            accentSupport = true;
+          }
+          // (lib.optionalAttrs (enableDefault != null) {
+            default = enableDefault;
+          })
+        )
+        // {
+          force = mkOption {
+            type = types.bool;
+            default = forceDefault;
+            description = "Forcibly override any existing configuration for Firefox Color.";
+            example = true;
+          };
+        };
     in
     {
-      options = setAttrByPath modulePath {
-        profiles = mkOption {
-          type = types.attrsOf (
-            types.submodule {
-              options =
-                catppuccinLib.mkCatppuccinOption {
-                  inherit name;
-                  accentSupport = true;
+      options =
+        (setAttrByPath modulePath (
+          (mkProfileOptions { })
+          // {
+            profiles = mkOption {
+              type = types.attrsOf (
+                types.submodule {
+                  options = mkProfileOptions {
+                    enableDefault = cfg.enable;
+                    forceDefault = cfg.force;
+                  };
+                  config = {
+                    flavor = lib.mkDefault cfg.flavor;
+                    accent = lib.mkDefault cfg.accent;
+                  };
                 }
-                // {
-                  force = mkOption {
-                    type = types.bool;
-                    default = false;
-                    description = "Forcibly override any existing configuration for Firefox Color.";
-                    example = true;
-                  };
-                };
-            }
-          );
-
-          # by default we list the `default` profile to enable the theme with just the `.enable` option
-          default = {
-            default = { };
-          };
-
-          description = "Catppuccin settings for ${prettyName} profiles.";
-        };
-      };
-
-      config =
-        let
-          # guarding against creating any configuration when no profiles are enabled
-          activeProfiles = filterAttrs (_: profile: profile.enable) cfg.profiles;
-        in
-        mkIf (activeProfiles != { }) (
-          setAttrByPath hmModulePath {
-            profiles = mapAttrs (_: profile: {
-              extensions = {
-                settings."FirefoxColor@mozilla.com" = {
-                  inherit (profile) force;
-                  settings = {
-                    firstRunDone = true;
-                    theme = themes.${profile.flavor}.${profile.accent};
-                  };
-                };
-              };
-            }) activeProfiles;
+              );
+              default = mapAttrs (_: _: { }) firefoxCfg.profiles;
+              defaultText = "<profiles declared in `${getAttrStringFromPath hmModulePath}.profiles`>";
+              description = "Catppuccin settings for ${prettyName} profiles.";
+            };
           }
-        );
+        ))
+        # home-manager browser config
+        // (setAttrByPath hmModulePath {
+          profiles = mkOption {
+            type = types.attrsOf (
+              types.submodule (
+                { name, ... }:
+                let
+                  profile = cfg.profiles.${name} or { enable = false; };
+                in
+                {
+                  config = mkIf profile.enable {
+                    extensions = {
+                      settings."FirefoxColor@mozilla.com" = {
+                        inherit (profile) force;
+                        settings = {
+                          firstRunDone = true;
+                          theme = themes.${profile.flavor}.${profile.accent};
+                        };
+                      };
+                    };
+                  };
+                }
+              )
+            );
+          };
+        });
+
+      config = {
+        warnings = foldl' (
+          acc: name:
+          acc
+          ++
+            optional (!(hasAttr name firefoxCfg.profiles))
+              "${prettyName} profile '${name}' is defined in '${getAttrStringFromPath modulePath}', but not '${getAttrStringFromPath hmModulePath}'. This will have no effect."
+        ) [ ] (attrNames cfg.profiles);
+      };
     };
 in
 {

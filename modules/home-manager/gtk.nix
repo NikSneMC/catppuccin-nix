@@ -9,71 +9,23 @@
 let
   inherit (lib)
     concatStringsSep
-    mkEnableOption
-    mkIf
-    mkMerge
-    mkOption
     mkRenamedOptionModule
-    types
+    mkRemovedOptionModule
+    toList
     ;
 
   cfg = config.catppuccin.gtk;
-  enable = cfg.enable && config.gtk.enable;
-in
 
-{
-  options.catppuccin.gtk =
-    catppuccinLib.mkCatppuccinOption {
-      name = "gtk";
-      useGlobalEnable = false;
-
-      accentSupport = true;
-    }
-    // {
-      size = mkOption {
-        type = types.enum [
-          "standard"
-          "compact"
-        ];
-        default = "standard";
-        description = "Catppuccin size variant for gtk";
-      };
-
-      tweaks = mkOption {
-        type = types.listOf (
-          types.enum [
-            "black"
-            "rimless"
-            "normal"
-            "float"
-          ]
-        );
-        default = [ ];
-        description = "Catppuccin tweaks for gtk";
-      };
-
-      gnomeShellTheme = mkEnableOption "Catppuccin gtk theme for GNOME Shell";
-
-      icon = catppuccinLib.mkCatppuccinOption {
-        name = "GTK modified Papirus icon theme";
-        # NOTE: we exclude this from the global `catppuccin.enable` as there is no
-        # `enable` option in the upstream module to guard it
-        default = false;
-
-        accentSupport = true;
-      };
-    };
-
-  imports =
-    (catppuccinLib.mkRenamedCatppuccinOptions {
+  namespaceRenameModules =
+    catppuccinLib.mkRenamedCatppuccinOptions {
       from = [
         "gtk"
         "catppuccin"
       ];
       to = "gtk";
       accentSupport = true;
-    })
-    ++ (catppuccinLib.mkRenamedCatppuccinOptions {
+    }
+    ++ catppuccinLib.mkRenamedCatppuccinOptions {
       from = [
         "gtk"
         "catppuccin"
@@ -81,7 +33,7 @@ in
       ];
       to = "cursors";
       accentSupport = true;
-    })
+    }
     ++ [
       (mkRenamedOptionModule
         [
