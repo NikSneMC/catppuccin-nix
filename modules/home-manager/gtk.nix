@@ -1,13 +1,11 @@
-{ catppuccinLib }:
-{
+{catppuccinLib}: {
   config,
   lib,
   pkgs,
   ...
-}:
-
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     concatStringsSep
     mkEnableOption
     mkIf
@@ -19,14 +17,10 @@ let
 
   cfg = config.catppuccin.gtk;
   enable = cfg.enable && config.gtk.enable;
-in
-
-{
+in {
   options.catppuccin.gtk =
     catppuccinLib.mkCatppuccinOption {
       name = "gtk";
-      useGlobalEnable = false;
-
       accentSupport = true;
     }
     // {
@@ -48,7 +42,7 @@ in
             "float"
           ]
         );
-        default = [ ];
+        default = [];
         description = "Catppuccin tweaks for gtk";
       };
 
@@ -83,7 +77,8 @@ in
       accentSupport = true;
     })
     ++ [
-      (mkRenamedOptionModule
+      (
+        mkRenamedOptionModule
         [
           "gtk"
           "catppuccin"
@@ -96,7 +91,8 @@ in
         ]
       )
 
-      (mkRenamedOptionModule
+      (
+        mkRenamedOptionModule
         [
           "gtk"
           "catppuccin"
@@ -109,7 +105,8 @@ in
         ]
       )
 
-      (mkRenamedOptionModule
+      (
+        mkRenamedOptionModule
         [
           "gtk"
           "catppuccin"
@@ -122,7 +119,8 @@ in
         ]
       )
 
-      (mkRenamedOptionModule
+      (
+        mkRenamedOptionModule
         [
           "gtk"
           "catppuccin"
@@ -138,41 +136,42 @@ in
 
   config = mkMerge [
     (mkIf enable {
-      gtk.theme =
-        let
-          gtkTweaks = concatStringsSep "," cfg.tweaks;
-        in
-        {
-          name =
-            "catppuccin-${cfg.flavor}-${cfg.accent}-${cfg.size}+"
-            + (if (cfg.tweaks == [ ]) then "default" else gtkTweaks);
-          package = config.catppuccin.sources.gtk.override {
-            inherit (cfg) flavor size tweaks;
-            accents = [ cfg.accent ];
-          };
+      gtk.theme = let
+        gtkTweaks = concatStringsSep "," cfg.tweaks;
+      in {
+        name =
+          "catppuccin-${cfg.flavor}-${cfg.accent}-${cfg.size}+"
+          + (
+            if (cfg.tweaks == [])
+            then "default"
+            else gtkTweaks
+          );
+        package = config.catppuccin.sources.gtk.override {
+          inherit (cfg) flavor size tweaks;
+          accents = [cfg.accent];
         };
+      };
 
-      xdg.configFile =
-        let
-          gtk4Dir = "${config.gtk.theme.package}/share/themes/${config.gtk.theme.name}/gtk-4.0";
-        in
-        {
-          "gtk-4.0/assets".source = "${gtk4Dir}/assets";
-          "gtk-4.0/gtk.css".source = "${gtk4Dir}/gtk.css";
-          "gtk-4.0/gtk-dark.css".source = "${gtk4Dir}/gtk-dark.css";
-        };
+      xdg.configFile = let
+        gtk4Dir = "${config.gtk.theme.package}/share/themes/${config.gtk.theme.name}/gtk-4.0";
+      in {
+        "gtk-4.0/assets".source = "${gtk4Dir}/assets";
+        "gtk-4.0/gtk.css".source = "${gtk4Dir}/gtk.css";
+        "gtk-4.0/gtk-dark.css".source = "${gtk4Dir}/gtk-dark.css";
+      };
     })
 
     (mkIf cfg.icon.enable {
-      gtk.iconTheme =
-        let
-          # use the light icon theme for latte
-          polarity = if cfg.icon.flavor == "latte" then "Light" else "Dark";
-        in
-        {
-          name = "Papirus-${polarity}";
-          package = pkgs.catppuccin-papirus-folders.override { inherit (cfg.icon) accent flavor; };
-        };
+      gtk.iconTheme = let
+        # use the light icon theme for latte
+        polarity =
+          if cfg.icon.flavor == "latte"
+          then "Light"
+          else "Dark";
+      in {
+        name = "Papirus-${polarity}";
+        package = pkgs.catppuccin-papirus-folders.override {inherit (cfg.icon) accent flavor;};
+      };
     })
 
     (mkIf cfg.gnomeShellTheme {
@@ -183,18 +182,21 @@ in
         }
       ];
 
-      home.packages = [ pkgs.gnomeExtensions.user-themes ];
+      home.packages = [pkgs.gnomeExtensions.user-themes];
 
       dconf.settings = {
         "org/gnome/shell" = {
           disable-user-extensions = false;
-          enabled-extensions = [ "user-theme@gnome-shell-extensions.gcampax.github.com" ];
+          enabled-extensions = ["user-theme@gnome-shell-extensions.gcampax.github.com"];
         };
         "org/gnome/shell/extensions/user-theme" = {
           inherit (config.gtk.theme) name;
         };
         "org/gnome/desktop/interface" = {
-          color-scheme = if cfg.flavor == "latte" then "default" else "prefer-dark";
+          color-scheme =
+            if cfg.flavor == "latte"
+            then "default"
+            else "prefer-dark";
         };
       };
     })

@@ -1,6 +1,11 @@
-# Stable Nix
+---
+title: Stable Nix
+description: Start using Catppuccin with Flakes, NixOS, and home-manager
+---
 
-When using stable Nix, we have a couple options for installing `catppuccin/nix`
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+When using stable Nix, we have a couple options for installing `catppuccin/nix`:
 
 ## With `npins`
 
@@ -8,9 +13,25 @@ When using stable Nix, we have a couple options for installing `catppuccin/nix`
 
 Assuming you have followed [their getting started guide](https://github.com/andir/npins#getting-started), you can run the following:
 
+<Tabs syncKey="channel">
+
+<TabItem label="Unstable">
+
 ```sh
 npins add --name catppuccin github catppuccin nix
 ```
+
+</TabItem>
+
+<TabItem label="25.05">
+
+```sh
+npins add --name catppuccin --branch release-25.05 github catppuccin nix
+```
+
+</TabItem>
+
+</Tabs>
 
 And in your system configuration:
 
@@ -51,15 +72,31 @@ in
 
 ## With channels
 
-[Nix channels](https://nixos.org/manual/nix/stable/command-ref/nix-channel.html) provide a way for you to easily download, update, and use our modules -- though at the cost of reproducibility across machines.
+[Nix channels](https://nixos.org/manual/nix/stable/command-ref/nix-channel.html) provide a way for you to easily download, update, and use our modules -- though at the cost of reproducible across machines.
 
 To add `catppuccin/nix` as a channel, you can run the following:
 
+<Tabs syncKey="channel">
+
+<TabItem label="Unstable">
 
 ```sh
 sudo nix-channel --add https://github.com/catppuccin/nix/archive/main.tar.gz catppuccin
 sudo nix-channel --update
 ```
+
+</TabItem>
+
+<TabItem label="25.05">
+
+```sh
+sudo nix-channel --add https://github.com/catppuccin/nix/archive/release-25.05.tar.gz catppuccin
+sudo nix-channel --update
+```
+
+</TabItem>
+
+</Tabs>
 
 And in your system configuration:
 
@@ -91,4 +128,3 @@ or if you use a [standalone installation](https://nix-community.github.io/home-m
 }
 
 ```
-

@@ -6,15 +6,14 @@
   gtk3,
   python3,
   sassc,
-  accents ? [ "mauve" ],
+  accents ? ["mauve"],
   allAccents ? true,
   flavor ? "frappe",
   size ? "standard",
-  tweaks ? [ ],
+  tweaks ? [],
 }:
-
 buildCatppuccinPort (finalAttrs: {
-  port = "gtk";
+  pname = "gtk";
   version = "1.0.3";
 
   src = fetchFromGitHub {
@@ -31,7 +30,7 @@ buildCatppuccinPort (finalAttrs: {
   '';
 
   nativeBuildInputs = [
-    (python3.withPackages (p: [ p.catppuccin ]))
+    (python3.withPackages (p: [p.catppuccin]))
     git # `git apply` is used for patches
     gtk3
     sassc
@@ -47,15 +46,15 @@ buildCatppuccinPort (finalAttrs: {
       "dist"
     ]
     ++ lib.optional allAccents "--all-accents"
-    ++ lib.optionals (accents != [ ]) [
+    ++ lib.optionals (accents != []) [
       "--accent"
       (toString accents)
     ]
-    ++ lib.optionals (size != [ ]) [
+    ++ lib.optionals (size != []) [
       "--size"
       size
     ]
-    ++ lib.optionals (tweaks != [ ]) [
+    ++ lib.optionals (tweaks != []) [
       "--tweaks"
       (toString tweaks)
     ];
