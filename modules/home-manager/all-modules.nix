@@ -12,6 +12,7 @@
   ./delta.nix
   ./dunst.nix
   ./element-desktop.nix
+  ./eza.nix
   ./fcitx5.nix
   ./firefox.nix
   ./fish.nix
@@ -53,10 +54,13 @@
   ./sway.nix
   ./swaylock.nix
   ./swaync.nix
+  ./television.nix
   ./thunderbird.nix
   ./tmux.nix
   ./tofi.nix
   ./vesktop.nix
+  ./vicinae.nix
+  ./vivid.nix
   ./vscode.nix
   ./waybar.nix
   ./wezterm.nix
