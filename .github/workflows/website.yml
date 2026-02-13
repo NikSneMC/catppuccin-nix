@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -53,7 +53,7 @@ jobs:
       - name: Update options data
         run: |
           ./dev/update-docs-data.sh main
-          ./dev/update-docs-data.sh 25.05 "github:catppuccin/nix/release-25.05?dir=dev/"
+          ./dev/update-docs-data.sh 25.11 "github:catppuccin/nix/release-25.11?dir=dev/"
 
       - name: Install dependencies
         run: |
@@ -64,7 +64,7 @@ jobs:
           nix develop .#ci --command nrr build
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist/
 

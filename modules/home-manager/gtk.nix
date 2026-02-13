@@ -58,81 +58,63 @@ in {
       };
     };
 
-  imports =
-    (catppuccinLib.mkRenamedCatppuccinOptions {
-      from = [
+  imports = [
+    (
+      mkRenamedOptionModule
+      [
         "gtk"
         "catppuccin"
-      ];
-      to = "gtk";
-      accentSupport = true;
-    })
-    ++ (catppuccinLib.mkRenamedCatppuccinOptions {
-      from = [
+        "size"
+      ]
+      [
+        "catppuccin"
+        "gtk"
+        "size"
+      ]
+    )
+
+    (
+      mkRenamedOptionModule
+      [
         "gtk"
         "catppuccin"
-        "cursor"
-      ];
-      to = "cursors";
-      accentSupport = true;
-    })
-    ++ [
-      (
-        mkRenamedOptionModule
-        [
-          "gtk"
-          "catppuccin"
-          "size"
-        ]
-        [
-          "catppuccin"
-          "gtk"
-          "size"
-        ]
-      )
+        "tweaks"
+      ]
+      [
+        "catppuccin"
+        "gtk"
+        "tweaks"
+      ]
+    )
 
-      (
-        mkRenamedOptionModule
-        [
-          "gtk"
-          "catppuccin"
-          "tweaks"
-        ]
-        [
-          "catppuccin"
-          "gtk"
-          "tweaks"
-        ]
-      )
+    (
+      mkRenamedOptionModule
+      [
+        "gtk"
+        "catppuccin"
+        "gnomeShellTheme"
+      ]
+      [
+        "catppuccin"
+        "gtk"
+        "gnomeShellTheme"
+      ]
+    )
 
-      (
-        mkRenamedOptionModule
-        [
-          "gtk"
-          "catppuccin"
-          "gnomeShellTheme"
-        ]
-        [
-          "catppuccin"
-          "gtk"
-          "gnomeShellTheme"
-        ]
-      )
-
-      (
-        mkRenamedOptionModule
-        [
-          "gtk"
-          "catppuccin"
-          "icon"
-        ]
-        [
-          "catppuccin"
-          "gtk"
-          "icon"
-        ]
-      )
-    ];
+    (
+      mkRenamedOptionModule
+      [
+        "gtk"
+        "catppuccin"
+        "icon"
+      ]
+      [
+        "catppuccin"
+        "gtk"
+        "icon"
+      ]
+    )
+  ];
 
   config = mkMerge [
     (mkIf enable {

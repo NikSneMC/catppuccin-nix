@@ -1,9 +1,12 @@
 [
+  # keep-sorted start
   ./aerc.nix
   ./alacritty.nix
+  ./anki.nix
   ./atuin.nix
   ./bat.nix
   ./bottom.nix
+  ./broot.nix
   ./btop.nix
   ./cava.nix
   ./chrome.nix
@@ -11,6 +14,7 @@
   ./delta.nix
   ./dunst.nix
   ./element-desktop.nix
+  ./eza.nix
   ./fcitx5.nix
   ./firefox.nix
   ./fish.nix
@@ -18,9 +22,10 @@
   ./freetube.nix
   ./fuzzel.nix
   ./fzf.nix
+  ./gemini-cli.nix
   ./gh-dash.nix
-  ./gitui.nix
   ./ghostty.nix
+  ./gitui.nix
   ./glamour.nix
   ./gtk.nix
   ./halloy.nix
@@ -33,31 +38,38 @@
   ./kvantum.nix
   ./lazygit.nix
   ./lsd.nix
-  ./newsboat.nix
-  ./nushell.nix
   ./mako.nix
   ./mangohud.nix
   ./micro.nix
   ./mpv.nix
   ./neovim.nix
+  ./newsboat.nix
+  ./nushell.nix
   ./obs.nix
+  ./opencode.nix
   ./polybar.nix
+  ./qt5ct.nix
   ./qutebrowser.nix
   ./rio.nix
   ./rofi.nix
+  ./sioyek.nix
   ./skim.nix
   ./spotify-player.nix
   ./starship.nix
-  ./swaylock.nix
   ./sway.nix
+  ./swaylock.nix
   ./swaync.nix
+  ./television.nix
   ./thunderbird.nix
   ./tmux.nix
   ./tofi.nix
   ./vesktop.nix
+  ./vicinae.nix
+  ./vivid.nix
   ./vscode.nix
   ./waybar.nix
   ./wezterm.nix
+  ./wleave.nix
   ./wlogout.nix
   ./xfce4-terminal.nix
   ./yazi.nix
@@ -65,5 +77,5 @@
   ./zed-editor.nix
   ./zellij.nix
   ./zsh-syntax-highlighting.nix
-  ./sioyek.nix
+  # keep-sorted end
 ]

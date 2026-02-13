@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -34,7 +34,7 @@ jobs:
 
       - name: Create pull request
         id: create-pull-request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ github.token }}
           commit-message: "chore: update flakes"
@@ -62,7 +62,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -75,7 +75,7 @@ jobs:
 
       - name: Create pull request
         id: create-pull-request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ github.token }}
           commit-message: "chore: update port sources"

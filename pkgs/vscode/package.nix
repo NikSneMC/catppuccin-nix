@@ -2,28 +2,23 @@
   lib,
   vscode-utils,
   fetchCatppuccinPort,
-  nodejs_22,
-  pnpm_10,
+  nodejs,
+  pnpm,
+  pnpmConfigHook,
+  fetchPnpmDeps,
 
   catppuccinOptions ? { },
 }:
 
-let
-
-  nodejs = nodejs_22;
-  pnpm = pnpm_10.override { inherit nodejs; };
-
-in
-
 vscode-utils.buildVscodeExtension (finalAttrs: {
   pname = "catppuccin-vscode";
   name = finalAttrs.pname;
-  version = "3.17.0";
+  version = "3.18.0";
 
   src = fetchCatppuccinPort {
     port = "vscode";
     rev = "refs/tags/@catppuccin/vscode-v${finalAttrs.version}";
-    hash = "sha256-TG6vZjPddZ2vTH4S81CNBI9axKS+HFwyx6GFUDUEC3U=";
+    hash = "sha256-vi+QNploStQFrXSc+izcycKtpkrRsq2mJWrKsHP3D5g=";
   };
 
   vscodeExtPublisher = "catppuccin";
@@ -33,20 +28,21 @@ vscode-utils.buildVscodeExtension (finalAttrs: {
   sourceRoot = null;
 
   pnpmWorkspaces = [ "catppuccin-vsc" ];
-  pnpmDeps = pnpm.fetchDeps {
+  pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs)
       pname
       version
       src
       pnpmWorkspaces
       ;
-    fetcherVersion = 2;
-    hash = "sha256-1+cSjq022J2U5UFsHDR/8+kDGySCqyKqat03+6qVktg=";
+    fetcherVersion = 3;
+    hash = "sha256-sPJhXj13O16kcaJ8LtJaGOtFxdXBl23wmCV4hcEhz4I=";
   };
 
   nativeBuildInputs = [
     nodejs
-    pnpm.configHook
+    pnpm
+    pnpmConfigHook
   ];
 
   env = lib.optionalAttrs (catppuccinOptions != { }) {
@@ -56,7 +52,7 @@ vscode-utils.buildVscodeExtension (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    pnpm --filter catppuccin-vsc core:build
+    pnpm --filter catppuccin-vsc core:build --no-regenerate
 
     cd packages/catppuccin-vsc
     node dist/hooks/generateThemes.cjs

@@ -27,46 +27,25 @@ in
           If this is disabled, you must manually set the theme (e.g. by using `kvantummanager`).
         '';
       };
+
+      assertStyle = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        example = false;
+        description = ''
+          Wether to assert that {option}`qt.style.name` is set to `"kvantum"` when Kvantum themes are enabled.
+        '';
+      };
     };
 
-  imports =
-    (catppuccinLib.mkRenamedCatppuccinOptions {
-      from = [
-        "qt"
-        "style"
-        "catppuccin"
-      ];
-      to = "kvantum";
-      accentSupport = true;
-    })
-    ++ [
-      (lib.mkRenamedOptionModule
-        [
-          "qt"
-          "style"
-          "catppuccin"
-          "apply"
-        ]
-        [
-          "catppuccin"
-          "kvantum"
-          "apply"
-        ]
-      )
-    ];
-
   config = lib.mkIf enable {
-    assertions = [
+    assertions = lib.mkIf cfg.assertStyle [
       {
         assertion = lib.elem config.qt.style.name [
           "kvantum"
           "Kvantum"
         ];
         message = ''`qt.style.name` must be `"kvantum"` to use `qt.style.catppuccin`'';
-      }
-      {
-        assertion = lib.elem (config.qt.platformTheme.name or null) [ "kvantum" ];
-        message = ''`qt.platformTheme.name` must be set to `"kvantum"` to use `qt.style.catppuccin`'';
       }
     ];
 

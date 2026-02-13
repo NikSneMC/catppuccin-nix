@@ -3,8 +3,6 @@
 
 let
   inherit (lib) toSentenceCase;
-  inherit (config.programs.freetube.settings) baseTheme;
-
   cfg = config.catppuccin.freetube;
 in
 
@@ -25,38 +23,12 @@ in
       };
     };
 
-  imports =
-    (catppuccinLib.mkRenamedCatppuccinOptions {
-      from = [
-        "programs"
-        "freetube"
-        "catppuccin"
-      ];
-      to = "freetube";
-      accentSupport = true;
-    })
-    ++ [
-      (lib.mkRenamedOptionModule
-        [
-          "programs"
-          "freetube"
-          "catppuccin"
-          "secondaryAccent"
-        ]
-        [
-          "catppuccin"
-          "freetube"
-          "secondaryAccent"
-        ]
-      )
-    ];
-
   config = lib.mkIf cfg.enable {
     programs.freetube.settings = {
       # NOTE: For some reason, baseTheme does not capitalize first letter, but the other settings do
       baseTheme = "catppuccin${toSentenceCase cfg.flavor}";
-      mainColor = toSentenceCase "${baseTheme}${toSentenceCase cfg.accent}";
-      secColor = toSentenceCase "${baseTheme}${toSentenceCase cfg.secondaryAccent}";
+      mainColor = "Catppuccin${toSentenceCase cfg.flavor}${toSentenceCase cfg.accent}";
+      secColor = "Catppuccin${toSentenceCase cfg.flavor}${toSentenceCase cfg.secondaryAccent}";
     };
   };
 }

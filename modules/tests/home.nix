@@ -8,26 +8,47 @@ in
   xdg.enable = true;
 
   i18n.inputMethod = {
-    enable = true;
+    enable = isLinux;
     type = "fcitx5";
   };
 
-  catppuccin.xfce4-terminal.enable = true;
+  catppuccin = {
+    # NOTE: This is enabled by default already, but still
+    # listing explicitly so we know it's tested
+    glamour.enable = true;
+
+    xfce4-terminal.enable = isLinux;
+
+    # we install the themes but don't apply them so we can test kvantum, qt5ct
+    # and qt6ct
+    kvantum.assertStyle = false;
+    qt5ct = {
+      enable = true;
+      assertPlatformTheme = false;
+    };
+  };
 
   # For `catppuccin.gtk.icon`
-  gtk.enable = true;
+  gtk.enable = isLinux;
 
   programs = {
     # keep-sorted start block=yes sticky_comments=yes
     aerc.enable = true;
     alacritty.enable = true;
+    anki.enable = true;
     bat.enable = true;
     bottom.enable = true;
     brave.enable = true;
+    broot.enable = true;
     btop.enable = true;
     cava.enable = true;
     chromium.enable = isLinux;
+    delta = {
+      enable = true;
+      enableGitIntegration = true;
+    };
     element-desktop.enable = true;
+    eza.enable = true;
     firefox = {
       enable = true;
       profiles.pepperjack = {
@@ -36,19 +57,14 @@ in
     };
     fish.enable = true;
     foot.enable = isLinux;
-    freetube.enable = true;
+    freetube.enable = isLinux;
     fuzzel.enable = isLinux;
     fzf.enable = true;
+    gemini-cli.enable = true;
     gh-dash.enable = true;
     ghostty.enable = isLinux;
-    git = {
-      enable = true;
-      delta.enable = true;
-    };
+    git.enable = true;
     gitui.enable = true;
-    # this is enabled by default already, but still
-    # listing explicitly so we know it's tested
-    glamour.catppuccin.enable = true;
     halloy.enable = true;
     helix.enable = true;
     hyprlock.enable = isLinux;
@@ -63,6 +79,7 @@ in
     neovim.enable = true;
     newsboat.enable = true;
     obs-studio.enable = isLinux;
+    opencode.enable = true;
     qutebrowser.enable = false; # broken package due to python3.13-lxml-html-clean-0.4.2
     rio.enable = true;
     rofi.enable = isLinux;
@@ -71,6 +88,7 @@ in
     spotify-player.enable = true;
     starship.enable = true;
     swaylock.enable = isLinux;
+    television.enable = true;
     thunderbird = {
       enable = isLinux;
       profiles.catppuccin-mocha-mauve.isDefault = true;
@@ -78,12 +96,15 @@ in
     tmux.enable = true;
     tofi.enable = isLinux;
     vesktop.enable = true;
+    vicinae.enable = isLinux;
+    vivid.enable = true;
     vscode = {
       enable = true;
       package = pkgs.vscodium;
     };
     waybar.enable = isLinux;
     wezterm.enable = true;
+    wleave.enable = isLinux;
     wlogout.enable = isLinux;
     yazi.enable = true;
     zathura.enable = true;
@@ -96,11 +117,7 @@ in
     # keep-sorted end
   };
 
-  qt = {
-    enable = isLinux;
-    platformTheme.name = "kvantum";
-    style.name = "kvantum";
-  };
+  qt.enable = isLinux;
 
   services = {
     # keep-sorted start block=yes

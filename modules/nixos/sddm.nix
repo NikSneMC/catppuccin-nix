@@ -74,101 +74,16 @@ in
         };
     };
 
-  imports =
-    (catppuccinLib.mkRenamedCatppuccinOptions {
-      from = [
-        "services"
-        "displayManager"
-        "sddm"
+  imports = [
+    (lib.mkRemovedOptionModule
+      [
         "catppuccin"
-      ];
-      to = "sddm";
-    })
-    ++ [
-      (lib.mkRenamedOptionModule
-        [
-          "services"
-          "displayManager"
-          "sddm"
-          "catppuccin"
-          "font"
-        ]
-        [
-          "catppuccin"
-          "sddm"
-          "font"
-        ]
-      )
-
-      (lib.mkRenamedOptionModule
-        [
-          "services"
-          "displayManager"
-          "sddm"
-          "catppuccin"
-          "fontSize"
-        ]
-        [
-          "catppuccin"
-          "sddm"
-          "fontSize"
-        ]
-      )
-
-      (lib.mkRenamedOptionModule
-        [
-          "services"
-          "displayManager"
-          "sddm"
-          "catppuccin"
-          "background"
-        ]
-        [
-          "catppuccin"
-          "sddm"
-          "background"
-        ]
-      )
-
-      (lib.mkRenamedOptionModule
-        [
-          "services"
-          "displayManager"
-          "sddm"
-          "catppuccin"
-          "loginBackground"
-        ]
-        [
-          "catppuccin"
-          "sddm"
-          "loginBackground"
-        ]
-      )
-
-      (lib.mkRenamedOptionModule
-        [
-          "services"
-          "displayManager"
-          "sddm"
-          "catppuccin"
-          "assertQt6Sddm"
-        ]
-        [
-          "catppuccin"
-          "sddm"
-          "assertQt6Sddm"
-        ]
-      )
-
-      (lib.mkRemovedOptionModule
-        [
-          "catppuccin"
-          "sddm"
-          "accentColor"
-        ]
-        "The `accentColor` option is no longer used upstream, please migrate to the new `accent` option instead."
-      )
-    ];
+        "sddm"
+        "accentColor"
+      ]
+      "The `accentColor` option is no longer used upstream, please migrate to the new `accent` option instead."
+    )
+  ];
 
   config = lib.mkIf enable {
     assertions = lib.optional cfg.assertQt6Sddm {
