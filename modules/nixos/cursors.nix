@@ -35,17 +35,18 @@ in
       };
     };
 
-  config =
-    lib.mkIf
+  config = lib.mkMerge [
+    (lib.mkIf cfg.enable {
+      environment.systemPackages = [
+        sources.cursors."${cfg.flavor}${lib.toSentenceCase cfg.accent}"
+      ];
+    })
+    (lib.mkIf
       (
         cfg.enable
         && (config.services.desktopManager.gnome.enable || config.services.displayManager.gdm.enable)
       )
       {
-        environment.systemPackages = [
-          sources.cursors
-        ];
-
         programs.dconf.profiles.gdm.databases = [
           {
             lockAll = true;
@@ -54,5 +55,7 @@ in
             };
           }
         ];
-      };
+      }
+    )
+  ];
 }

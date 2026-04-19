@@ -12,11 +12,11 @@
     "fmt": "prettier --write ."
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.6",
-    "@astrojs/starlight": "^0.37.3",
-    "@catppuccin/starlight": "^1.0.2",
-    "astro": "^5.16.10",
-    "prettier": "^3.8.0",
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/starlight": "^0.38.1",
+    "@catppuccin/starlight": "^2.0.1",
+    "astro": "^6.0.7",
+    "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3"
@@ -26,7 +26,7 @@
       "prettier-plugin-astro"
     ]
   },
-  "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a",
+  "packageManager": "pnpm@10.31.0+sha512.e3927388bfaa8078ceb79b748ffc1e8274e84d75163e67bc22e06c0d3aed43dd153151cbf11d7f8301ff4acb98c68bdc5cadf6989532801ffafe3b3e4a63c268",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
